@@ -25,9 +25,9 @@ API_PATH_DICT = {                #定义data 字典类型
     'markets': '%s/markets.json',         #市场名称（字符串类型）
 
     #market code required in url as {market}.json
-    'tickers' : '%s/tickers/%%s.json',
+    'tickers' : '%s/tickers/%%s.json',    #市场价格信息（买入价，卖出价，最高价，最低价，最后成交价，成交量）
     #market required in url query string as '?market={market}'
-    'orders': '%s/orders.json',
+    'orders': '%s/orders.json',        #你的订单信息
 
     #order id required in url query string as '?id={id}'
     'order': '%s/order.json',

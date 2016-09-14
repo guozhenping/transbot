@@ -1,16 +1,24 @@
-import urllib.request      #导入 urllib模块
+import urllib.request    
+#导入 urllib模块的request模块（urllib的request模块可以非常方便地抓取URL内容，也就是发送一个GET请求到指定的页面，然后返回HTTP的响应：）
 import urllib.error
+#导入 urllib模块的error模块（异常处理）
 import urllib.parse
+#导入 urllib模块的parse模块（pass）
 import urllib
+#导入 urllib模块
 import json
+#导入 json模块
 import time
+#导入 time模块
 import hmac
+#导入 hmac模块
 import hashlib
+#导入 hashlib模块
 
 
-BASE_URL = 'https://yunbi.com/'
+BASE_URL = 'https://yunbi.com/'  #云币地址
 
-API_BASE_PATH = '/api/v2'
+API_BASE_PATH = '/api/v2'        #云币api路径
 API_PATH_DICT = {
     # GET
     'members': '%s/members/me.json',

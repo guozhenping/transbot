@@ -27,32 +27,32 @@ API_PATH_DICT = {                #定义data 字典类型
     #market code required in url as {market}.json
     'tickers' : '%s/tickers/%%s.json',    #市场价格信息（买入价，卖出价，最高价，最低价，最后成交价，成交量）
     #market required in url query string as '?market={market}'
-    'orders': '%s/orders.json',        #你的订单信息
+    'orders': '%s/orders.json',        #你的订单信息（特定市场中的订单信息）
 
     #order id required in url query string as '?id={id}'
-    'order': '%s/order.json',
+    'order': '%s/order.json',           #你的订单信息（特定id的订单信息）
 
     #market required in url query string as '?market={market}'
-    'order_book': '%s/order_book.json',
+    'order_book': '%s/order_book.json',   #当前市场的挂单信息
 
     #market required in url query string as '?market={market}'
-    'trades': '%s/trades.json',
+    'trades': '%s/trades.json',    #获得最近的订单撮合后形成的交易信息
 
     #market required in url query string as '?market={market}'
-    'my_trades': '%s/trades/my.json',
-
-    'k': '%s/k.json',
-    #clear orders in all markets
-    'clear': '%s/orders/clear.json',
+    'my_trades': '%s/trades/my.json',     #获取订单撮合后形成的交易信息
+    #Get OHLC(k line) of specific market
+    'k': '%s/k.json',                #获取特定市场的k线信息
+    #clear orders in all markets---Cancel all my orders
+    'clear': '%s/orders/clear.json',     #在特定市场中所有取消订单
 
     #delete a specific order
-    'delete_order': '%s/order/delete.json',
+    'delete_order': '%s/order/delete.json',       #取消一个特定的订单
 
     #TODO multi orders API
-    'multi_orders': '%s/orders/multi.json',
+    'multi_orders': '%s/orders/multi.json',   #创建多个销售/购买订单
 }
 
-class Client():
+class Client():     #创建一个客户端的类
 
     def __init__(self, access_key=None, secret_key=None):
         if access_key and secret_key:

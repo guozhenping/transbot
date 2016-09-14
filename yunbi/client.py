@@ -21,8 +21,8 @@ BASE_URL = 'https://yunbi.com/'  #云币地址
 API_BASE_PATH = '/api/v2'        #云币api路径
 API_PATH_DICT = {                #定义data 字典类型
     # GET
-    'members': '%s/members/me.json',
-    'markets': '%s/markets.json',
+    'members': '%s/members/me.json',      #用户名 （字符串类型）
+    'markets': '%s/markets.json',         #市场名称（字符串类型）
 
     #market code required in url as {market}.json
     'tickers' : '%s/tickers/%%s.json',

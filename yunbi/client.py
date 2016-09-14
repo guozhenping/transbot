@@ -1,4 +1,4 @@
-import urllib.request
+import urllib.request      #导入 urllib模块
 import urllib.error
 import urllib.parse
 import urllib

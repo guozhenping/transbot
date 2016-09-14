@@ -11,15 +11,15 @@ import json
 import time
 #导入 time模块
 import hmac
-#导入 hmac模块
+#导入 hmac模块 （Python中的用于加密的函数，验证数字签名用）
 import hashlib
-#导入 hashlib模块
+#导入 hashlib模块（Python的hashlib提供了常见的摘要算法，如MD5，SHA1等等）Python中的用于加密的函数
 
 
 BASE_URL = 'https://yunbi.com/'  #云币地址
 
 API_BASE_PATH = '/api/v2'        #云币api路径
-API_PATH_DICT = {
+API_PATH_DICT = {                #定义data 字典类型
     # GET
     'members': '%s/members/me.json',
     'markets': '%s/markets.json',

@@ -54,11 +54,11 @@ API_PATH_DICT = {                #定义data 字典类型
 
 class Client():     #创建一个客户端的类
 
-    def __init__(self, access_key=None, secret_key=None):
+    def __init__(self, access_key=None, secret_key=None):   #access_key 接入key secret_key 密钥key
         if access_key and secret_key:
             self.auth = Auth(access_key, secret_key)
         else:
-            print("provide key please")
+            print("provide key please")           #否则就打印 请提供key
 
     def getBalance(self):
         result = self.get('members', sigrequest=True)

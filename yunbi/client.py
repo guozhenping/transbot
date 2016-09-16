@@ -55,8 +55,8 @@ API_PATH_DICT = {                #定义data 字典类型
 class Client():     #创建一个客户端的类
 
     def __init__(self, access_key=None, secret_key=None):   #access_key 接入key secret_key 密钥key
-        if access_key and secret_key:
-            self.auth = Auth(access_key, secret_key)
+        if access_key and secret_key:                         #接入key和 密钥key要同时正确
+            self.auth = Auth(access_key, secret_key)     #验证 接入key和 密钥key   Auth类 后面有定义
         else:
             print("provide key please")           #否则就打印 请提供key
 
@@ -140,15 +140,15 @@ class Client():     #创建一个客户端的类
 
 #--------------------------------------------------------------------------------------
 
-class Auth():
-    def __init__(self, access_key, secret_key):
+class Auth():       #验证类
+    def __init__(self, access_key, secret_key):   #初始化定义 接入key和 密钥key
         self.access_key = access_key
         self.secret_key = secret_key
 
-    def urlencode(self, params):
+    def urlencode(self, params):        # url 进行编码   params参数
         keys = params.keys()
-        keys = sorted(keys)
-        query = ''
+        keys = sorted(keys)    #对keys进行排序 从小到大
+        query = ''            #查询
         for key in keys:
             value = params[key]
             if key != "orders":
@@ -163,15 +163,19 @@ class Auth():
                         item = "orders[][%s]=%s" % (k, v[k])
                         query = "%s&%s" % (query, item) if len(query) else "%s" % item
         return query
-
-    def sign(self, verb, path, params=None):
-        query = self.urlencode(params)
+# 'GET|/api/v2/markets|access_key=xxx&foo=bar&tonce=123456789'   
+#{canonical_verb}|#{canonical_uri}|#{canonical_query}
+# canonical_verb 请求方法，例如GET
+# canonical_uri 请求地址，例如 /api/v2/markets
+# canonical_query 请求参数，通过 & 连接而成的字符串参数包括 access_key 和 tonce
+    def sign(self, verb, path, params=None):     #签名类  verb请求方法    path路径  参数=none
+        query = self.urlencode(params)                 #请求参数
         msg = ("|".join([verb, path, query])).encode('utf-8')
         signature = hmac.new(self.secret_key.encode('utf-8'), msg=msg, digestmod=hashlib.sha256).hexdigest()
 
         return signature
 
-    def sign_params(self, verb, path, params=None):
+    def sign_params(self, verb, path, params=None):   #签名参数
         if not params:
             params = {}
         params.update({'tonce': int(1000*time.time()), 'access_key': self.access_key})

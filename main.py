@@ -176,18 +176,18 @@ class MarketMaker(object):   #做市商
 
             if bidList[0]["orderbook"]["bids"][0][0] > askList[0]["orderbook"]["asks"][0][0]:#check if arbitrage chance exist 检测套利机会是否存在
                 try:
-                    self.cancelAllOrders(["dex", "yunbi"])#cancel orders and check again
-                    print("have removed the orders with potential to be arbitraged!")
+                    self.cancelAllOrders(["dex", "yunbi"])#cancel orders and check again  取消订单 继续检测
+                    print("have removed the orders with potential to be arbitraged!") #已删除的订单与潜在的套利
                     time.sleep(2)
                     marketInfo = self.fetchMarketInfo()
-                except:
+                except:      
                     print("exception while canceling orders or fetching MarketInfo at the second place")
-                    time.sleep(5)
+                    time.sleep(5)    #出问题 在 取消订单或者抓取数据的 第二步
 
                 askList = sorted(marketInfo, key=lambda x: x["ticker"]["sell"])
                 bidList = sorted(marketInfo, key=lambda x: x["ticker"]["buy"], reverse=True)
                 if bidList[0]["orderbook"]["bids"][0][0] > askList[0]["orderbook"]["asks"][0][0]:
-                    #generate orders and execute for arbitrage
+                    #generate orders and execute for arbitrage生成订单和执行套利
                     BidOrder = {"market":"BTS_CNY","type": "buy", "volume": askList[0]["orderbook"]["asks"][0][1],
                                 "price": askList[0]["orderbook"]["asks"][0][0], "index": 0}
                     AskOrder = {"market":"BTS_CNY","type": "sell", "volume": bidList[0]["orderbook"]["bids"][0][1],

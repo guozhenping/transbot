@@ -54,9 +54,9 @@ class MarketMaker(object):   #做市商
 
     def checkBalance(self,exchanges=["dex","btc38","yunbi"],limit={"BTS":1000000,"CNY":20000}):   #检查余额  dex 是内盘
         try:
-            checkResult = True
+            checkResult = True  
             balance = {"btc38": {"CNY": 0, "BTS": 0}, "dex": {"CNY": 0, "BTS": 0}, "yunbi": {"CNY": 0, "BTS": 0}}
-            for ex in exchanges:
+            for ex in exchanges:      #主要是或得内盘的账户余额
                 if ex == "btc38":
                     result = self.client.btc38Client.getMyBalance()
                     balance["btc38"]["CNY"] = float(result["cny_balance"])
@@ -71,27 +71,27 @@ class MarketMaker(object):   #做市商
                     balance["yunbi"]["CNY"] = result["cny"]
             for ex in exchanges:
                 for asset in ["BTS", "CNY"]:
-                    if balance[ex][asset] < limit[asset]:
+                    if balance[ex][asset] < limit[asset]:  
                         print("%s amount in %s is not enough" % (asset, ex))
-                        checkResult = False
+                        checkResult = False       #如果 资金小于最低限额 提示不够
             return checkResult
-        except Exception as e:
-            print("except while checking balance:", e)
+        except Exception as e:        
+            print("except while checking balance:", e)  #在检测余额的时候的 问题
 
-    def dexTicker2General(self, dexTicker):
+    def dexTicker2General(self, dexTicker):   #定义 bts内盘的价格信息
         ticker = {"vol": dexTicker["quoteVolume"], "buy": dexTicker["highestBid"], "last": dexTicker["last"],
                   "sell": dexTicker["lowestAsk"]}
         return ticker
-
-    def executeOrder(self, exchange, Order):
-        if exchange == "btc38":
+ 
+    def executeOrder(self, exchange, Order):   #执行订单
+        if exchange == "btc38":    #比特时代 买卖订单
             if Order["type"] == "buy":
                 type = 1
             if Order["type"] == "sell":
                 type = 2
             return self.client.btc38Client.submitOrder(type, 'cny', Order["price"], Order["volume"], "bts")
 
-        if exchange == 'dex':
+        if exchange == 'dex':    #bts内盘  可以忽略  
             if Order["market"] =="BTS_CNY":
                 # below is to handle the trouble brought by precision while taking orders
                 if (Order["volume"]*100000)%1 != 0:
@@ -103,24 +103,24 @@ class MarketMaker(object):   #做市商
             if Order["type"] == "sell":
                 return json.dumps(self.client.btsClient.sell("BTS_CNY", Order["price"], Order["volume"]))
 
-        if exchange == "yunbi":
+        if exchange == "yunbi":   #如果是云币
             params = {'market': 'btscny', 'side': Order["type"], 'volume': Order["volume"], 'price': Order["price"]}
             res =  self.client.yunbiClient.post('orders',params)
             return res
 
-    def cancelAllOrders(self, exchanges=['dex'], quote="bts"):
+    def cancelAllOrders(self, exchanges=['dex'], quote="bts"):   #取消所有的订单
         for ex in exchanges:
-            if ex == "dex":
+            if ex == "dex":    #bts内盘  可以忽略  
                 orders = self.client.btsClient.returnOpenOrders("BTS_CNY")['BTS_CNY']
                 for order in orders:
                     print("DEX order canceled:")
                     print(self.client.btsClient.cancel(order["orderNumber"]))
-            if ex == "btc38":
+            if ex == "btc38":  #如果是时代 的话 怎么取消
                 orders = self.client.btc38Client.getOrderList("bts")
                 for order in orders:
                     print("btc38 order canceled:")
                     print(self.client.btc38Client.cancelOrder("cny", order["id"]))
-            if ex=="yunbi":
+            if ex=="yunbi":  #如果是云币的话 怎么取消
                 orders = self.client.yunbiClient.get('orders', {'market': 'btscny'}, True)
                 for order in orders:
                     print("yunbi order canceled:")
@@ -128,17 +128,17 @@ class MarketMaker(object):   #做市商
                     print(self.client.yunbiClient.post('delete_order', params))
         return
 
-    def fetchMarketInfo(self):
-        btc38Ticker = self.client.btc38Client.getTickers()['ticker']
+    def fetchMarketInfo(self):     #获得市场价格信息
+        btc38Ticker = self.client.btc38Client.getTickers()['ticker']  #获得时代的价格信息
         btc38OrderBook = self.client.btc38Client.getDepth()
         print("fetch data, finished btc38 part")
 
-        dexTicker = self.dexTicker2General(self.client.btsClient.returnTicker()['BTS_CNY'])
+        dexTicker = self.dexTicker2General(self.client.btsClient.returnTicker()['BTS_CNY'])  #获得 内盘的价格信息
         dexOrderBook = self.client.btsClient.returnOrderBook("BTS_CNY")['BTS_CNY']
         dexOpenOrders = self.client.btsClient.returnOpenOrders("BTS_CNY")["BTS_CNY"]
         print("fetch data, finished dex part")
 
-        yunbiTicker = self.client.yunbiClient.getTickers()
+        yunbiTicker = self.client.yunbiClient.getTickers()  #获得云币的价格
         yunbiOrderBook = self.client.yunbiClient.getOrderBook()
         yunbiOpenOrders = self.client.yunbiClient.getOpenOrders()
         print("fetch data, finished yunbi part")
@@ -147,34 +147,34 @@ class MarketMaker(object):   #做市商
                       {"exname": "btc38", "ticker": btc38Ticker, "orderbook": btc38OrderBook},
                       {"exname": "yunbi", "ticker": yunbiTicker, "orderbook": yunbiOrderBook, "openorders":yunbiOpenOrders}
                       ]
-        print("fetch data, finished")
-        return marketInfo
+        print("fetch data, finished")      #抓取数据成功
+        return marketInfo         #返回这个这个数据列表
 
 
-    def clearTicker(self, exchanges=['dex', 'btc38']):
+    def clearTicker(self, exchanges=['dex', 'btc38']):  #开始分析价格信息
         print("start clearTicker")
         try:
             marketInfo = self.fetchMarketInfo()
         except Exception as e:
             print("fetchMarketInfo not executed correctly at the first place", e)
-            #self.client.renewDEXconn()
-            time.sleep(5)
-            return 0
+            #self.client.renewDEXconn()    打印在一开始没事抓取数据成功
+            time.sleep(5)          #睡5s
+            return 0  #返回0
 
-        for member in marketInfo:
+        for member in marketInfo:  #获取中间价
             if member["exname"] == 'btc38':
                 middlePrice = (member["ticker"]["buy"]+member["ticker"]["sell"])/2
-        minGap = middlePrice * 0.008
-        loop=0
+        minGap = middlePrice * 0.008     #中间价格*0.008
+        loop=0   #环路=0
 
         while True:
-            loop+=1
+            loop+=1        
             print("begin the arbitrage chance check circle, %s loop" % loop)
-
+             #开始寻找套利机会  次数
             askList = sorted(marketInfo,key=lambda x:x["ticker"]["sell"])
-            bidList = sorted(marketInfo, key=lambda x:x["ticker"]["buy"], reverse=True)
+            bidList = sorted(marketInfo, key=lambda x:x["ticker"]["buy"], reverse=True)  #列出排列好的买卖单
 
-            if bidList[0]["orderbook"]["bids"][0][0] > askList[0]["orderbook"]["asks"][0][0]:#check if arbitrage chance exist
+            if bidList[0]["orderbook"]["bids"][0][0] > askList[0]["orderbook"]["asks"][0][0]:#check if arbitrage chance exist 检测套利机会是否存在
                 try:
                     self.cancelAllOrders(["dex", "yunbi"])#cancel orders and check again
                     print("have removed the orders with potential to be arbitraged!")

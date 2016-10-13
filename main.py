@@ -1,13 +1,13 @@
-import json
-import yunbi.client
-import yunbi
-import btc38
-import btc38.client
-import pymysql.cursors
+import json    #导入 json 
+import yunbi.client   #导入云币客户端
+import yunbi             #导入云币文件夹
+import btc38              #导入 38
+import btc38.client     #导入38客户端
+import pymysql.cursors   
 from grapheneexchange import GrapheneExchange
-import time
+import time    #导入时间戳
 from datetime import datetime, timedelta
-import hashlib
+import hashlib   #导入加密签名
 
 
 class TradeClient(object):   #交易客户端  （我的已经自己写入秘钥 所以可以不用）

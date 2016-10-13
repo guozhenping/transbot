@@ -83,13 +83,13 @@ class MarketMaker(object):   #做市商
                   "sell": dexTicker["lowestAsk"]}
         return ticker
  
-    def executeOrder(self, exchange, Order):   #执行订单
+    def executeOrder(self, exchange, Order):   #告诉程序 怎么执行订单
         if exchange == "btc38":    #比特时代 买卖订单
-            if Order["type"] == "buy":
+            if Order["type"] == "buy":  #如果买 1
                 type = 1
-            if Order["type"] == "sell":
+            if Order["type"] == "sell": #如果卖 2
                 type = 2
-            return self.client.btc38Client.submitOrder(type, 'cny', Order["price"], Order["volume"], "bts")
+            return self.client.btc38Client.submitOrder(type, 'cny', Order["price"], Order["volume"], "bts") #执行 多种订单
 
         if exchange == 'dex':    #bts内盘  可以忽略  
             if Order["market"] =="BTS_CNY":
@@ -103,7 +103,7 @@ class MarketMaker(object):   #做市商
             if Order["type"] == "sell":
                 return json.dumps(self.client.btsClient.sell("BTS_CNY", Order["price"], Order["volume"]))
 
-        if exchange == "yunbi":   #如果是云币
+        if exchange == "yunbi":   #如果是云币 怎么执行订单
             params = {'market': 'btscny', 'side': Order["type"], 'volume': Order["volume"], 'price': Order["price"]}
             res =  self.client.yunbiClient.post('orders',params)
             return res
@@ -129,9 +129,9 @@ class MarketMaker(object):   #做市商
         return
 
     def fetchMarketInfo(self):     #获得市场价格信息
-        btc38Ticker = self.client.btc38Client.getTickers()['ticker']  #获得时代的价格信息
+        btc38Ticker = self.client.btc38Client.getTickers()['ticker']  #怎么获得时代的价格信息
         btc38OrderBook = self.client.btc38Client.getDepth()
-        print("fetch data, finished btc38 part")
+        print("fetch data, finished btc38 part")   #抓取数据完成 时代部分
 
         dexTicker = self.dexTicker2General(self.client.btsClient.returnTicker()['BTS_CNY'])  #获得 内盘的价格信息
         dexOrderBook = self.client.btsClient.returnOrderBook("BTS_CNY")['BTS_CNY']
@@ -141,36 +141,36 @@ class MarketMaker(object):   #做市商
         yunbiTicker = self.client.yunbiClient.getTickers()  #获得云币的价格
         yunbiOrderBook = self.client.yunbiClient.getOrderBook()
         yunbiOpenOrders = self.client.yunbiClient.getOpenOrders()
-        print("fetch data, finished yunbi part")
+        print("fetch data, finished yunbi part")   #抓取数据完成，云币部分
 
         marketInfo = [{"exname": "dex", "ticker": dexTicker, "orderbook": dexOrderBook,"openorders":dexOpenOrders},
                       {"exname": "btc38", "ticker": btc38Ticker, "orderbook": btc38OrderBook},
                       {"exname": "yunbi", "ticker": yunbiTicker, "orderbook": yunbiOrderBook, "openorders":yunbiOpenOrders}
                       ]
         print("fetch data, finished")      #抓取数据成功
-        return marketInfo         #返回这个这个数据列表
+        return marketInfo         #返回这个这个数据列表 （价格信息列表）
 
 
     def clearTicker(self, exchanges=['dex', 'btc38']):  #开始分析价格信息
-        print("start clearTicker")
+        print("start clearTicker")  #打印 开始分析价格
         try:
-            marketInfo = self.fetchMarketInfo()
+            marketInfo = self.fetchMarketInfo()   #执行上面的 价格分析
         except Exception as e:
             print("fetchMarketInfo not executed correctly at the first place", e)
-            #self.client.renewDEXconn()    打印在一开始没事抓取数据成功
-            time.sleep(5)          #睡5s
+            #self.client.renewDEXconn()    打印在一开始没事抓取数据没有成功
+            time.sleep(5)          #睡5s 休息5s
             return 0  #返回0
 
         for member in marketInfo:  #获取中间价
-            if member["exname"] == 'btc38':
+            if member["exname"] == 'btc38':  #如果是38的话
                 middlePrice = (member["ticker"]["buy"]+member["ticker"]["sell"])/2
-        minGap = middlePrice * 0.008     #中间价格*0.008
-        loop=0   #环路=0
+        minGap = middlePrice * 0.008     #中间价格*0.008  
+        loop=0   #环路=0 次数
 
         while True:
             loop+=1        
             print("begin the arbitrage chance check circle, %s loop" % loop)
-             #开始寻找套利机会  次数
+             #开始寻找套利机会 第几次数
             askList = sorted(marketInfo,key=lambda x:x["ticker"]["sell"])
             bidList = sorted(marketInfo, key=lambda x:x["ticker"]["buy"], reverse=True)  #列出排列好的买卖单
 

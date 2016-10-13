@@ -10,13 +10,13 @@ from datetime import datetime, timedelta
 import hashlib   #导入加密签名
 
 
-class TradeClient(object):   #交易客户端  （我的已经自己写入秘钥 所以可以不用）
+class TradeClient(object):   #交易程序  
     def __init__(self):
-        f = open("config.json", 'r')  #打开config。json
+        f = open("config.json", 'r')  #打开config.json  主要是要交易秘钥
         config = json.loads(f.read())   #将一个json串转化为dict
-        f.close()              #关闭config
+        f.close()              #关闭config   此步骤可以不管 
 
-        for client in config:
+        for client in config:    #循环 一个个的来
 
             if client['client'] == 'bts':  ###########################如果是bts内盘   执行类Config   可以忽略
                 class Config():
@@ -49,10 +49,10 @@ class TradeClient(object):   #交易客户端  （我的已经自己写入秘钥
 class MarketMaker(object):   #做市商
     def __init__(self): 
         self.client = TradeClient() 
-        self.currentmiddlePrice = {"dex":0, "yunbi":0}  #当前中间价格
+        self.currentmiddlePrice = {"dex":0, "yunbi":0}  #当前两个 交易所的价格
         self.makingvolume = 60000   #做市商体量60000
 
-    def checkBalance(self,exchanges=["dex","btc38","yunbi"],limit={"BTS":1000000,"CNY":20000}):   #检查余额  dex 是内盘
+    def checkBalance(self,exchanges=["dex","btc38","yunbi"],limit={"BTS":1000000,"CNY":20000}):   #检查余额  dex 是内盘 限制 bts1000000 cny20000
         try:
             checkResult = True  
             balance = {"btc38": {"CNY": 0, "BTS": 0}, "dex": {"CNY": 0, "BTS": 0}, "yunbi": {"CNY": 0, "BTS": 0}}
